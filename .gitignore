@@ -1,0 +1,12 @@
+# Never commit machine-local or secret-bearing config
+settings.local.json
+.claude/settings.local.json
+*.local.json
+.env
+.env.*
+*.pem
+*.key
+
+# OS noise
+.DS_Store
+Thumbs.db

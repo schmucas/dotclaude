@@ -1,0 +1,8 @@
+{
+  "name": "core",
+  "description": "Everyday commands and agents used across all projects.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Luca Zwicky"
+  }
+}

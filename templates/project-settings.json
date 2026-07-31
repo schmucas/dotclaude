@@ -1,0 +1,14 @@
+{
+  "$comment": "Copy to <new-project>/.claude/settings.json and commit it. On trusting the folder, Claude Code offers to install the listed plugins. Trim enabledPlugins to what the project actually needs.",
+  "extraKnownMarketplaces": {
+    "luca": {
+      "source": {
+        "source": "github",
+        "repo": "schmucas/dotclaude"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "databricks@luca": true
+  }
+}
