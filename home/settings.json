@@ -10,5 +10,18 @@
   },
   "enabledPlugins": {
     "core@luca": true
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "~/.claude/hooks/format-on-save.sh"
+          }
+        ]
+      }
+    ]
   }
 }
