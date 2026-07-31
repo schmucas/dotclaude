@@ -1,0 +1,8 @@
+{
+  "name": "databricks",
+  "description": "Databricks Lakeflow, Workflows, DAB and Unity Catalog conventions and review skills.",
+  "version": "0.1.0",
+  "author": {
+    "name": "Luca Zwicky"
+  }
+}

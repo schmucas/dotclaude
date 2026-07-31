@@ -1,0 +1,23 @@
+{
+  "name": "luca",
+  "owner": {
+    "name": "Luca Zwicky",
+    "email": "lzwicky@dattla.com"
+  },
+  "metadata": {
+    "description": "Personal Claude Code plugins: reusable skills, commands and agents.",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "core",
+      "source": "./plugins/core",
+      "description": "Everyday commands and agents used across all projects."
+    },
+    {
+      "name": "databricks",
+      "source": "./plugins/databricks",
+      "description": "Databricks Lakeflow, DAB and Unity Catalog conventions and review skills."
+    }
+  ]
+}
