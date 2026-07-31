@@ -59,17 +59,17 @@ If yes, it is a plugin. If no, it is global.
 
 ### Subagents
 
-`plugins/core/agents/security-scanner.md`
+- [`plugins/core/agents/security-scanner.md`](plugins/core/agents/security-scanner.md)
 
 ### Skills
 
-`plugins/databricks/skills/lakeflow-review/SKILL.md`
-`plugins/databricks/skills/lakeflow-jobs/SKILL.md`
-`plugins/databricks/skills/databricks-conventions/SKILL.md`
+- [`plugins/databricks/skills/lakeflow-review/SKILL.md`](plugins/databricks/skills/lakeflow-review/SKILL.md)
+- [`plugins/databricks/skills/lakeflow-jobs/SKILL.md`](plugins/databricks/skills/lakeflow-jobs/SKILL.md)
+- [`plugins/databricks/skills/databricks-conventions/SKILL.md`](plugins/databricks/skills/databricks-conventions/SKILL.md)
 
 ### Hooks
 
-`home/hooks/format-on-save.sh`
+- [`home/hooks/format-on-save.sh`](home/hooks/format-on-save.sh)
 
 ---
 
