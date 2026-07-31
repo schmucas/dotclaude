@@ -17,6 +17,7 @@ LINKS=(
   "CLAUDE.md"
   "settings.json"
   "skills"
+  "hooks"
 )
 # modules/ lives at repo root, not under home/, but is linked into ~/.claude too
 # so that CLAUDE.md files can import it as @~/.claude/modules/<name>.md
