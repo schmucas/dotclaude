@@ -25,7 +25,7 @@ Those two answers need two different delivery mechanisms, so the repo has two ha
 flowchart LR
     subgraph REPO["dotclaude"]
         direction TB
-        H["<b>home/</b><br/>CLAUDE.md<br/>settings.json<br/>skills/"]
+        H["<b>home/</b><br/>CLAUDE.md<br/>settings.json<br/>skills/<br/>hooks/"]
         M["<b>modules/</b><br/>CLAUDE.md fragments"]
         P["<b>plugins/</b><br/>core, databricks"]
     end
@@ -57,13 +57,17 @@ If yes, it is a plugin. If no, it is global.
 
 ## What is in here
 
-### Subagent: `security-scanner`
+### Subagents
 
 `plugins/core/agents/security-scanner.md`
 
-### Skill: `lakeflow-review`
+### Skills
 
 `plugins/databricks/skills/lakeflow-review/SKILL.md`
+
+### Hooks
+
+`home/hooks/format-on-save.sh`
 
 ---
 
@@ -76,7 +80,8 @@ dotclaude/
 ├── home/                         symlinked into ~/.claude, always on
 │   ├── CLAUDE.md                 global instructions
 │   ├── settings.json             global settings + marketplace registration
-│   └── skills/                   skills available in every project
+│   ├── skills/                   skills available in every project
+│   └── hooks/                    hook scripts referenced from settings.json
 ├── modules/                      CLAUDE.md fragments, imported on demand
 │   └── databricks-conventions.md
 ├── plugins/                      installed per project
@@ -108,6 +113,7 @@ Resulting links:
 ~/.claude/CLAUDE.md     -> dotclaude/home/CLAUDE.md
 ~/.claude/settings.json -> dotclaude/home/settings.json
 ~/.claude/skills        -> dotclaude/home/skills
+~/.claude/hooks         -> dotclaude/home/hooks
 ~/.claude/modules       -> dotclaude/modules
 ```
 
