@@ -17,4 +17,5 @@
 
 ## Security and Privacy
 - check for security vulnerabilities and point it out
-- don't expose any PII, credentials, or other critical information ever
+- follow security and privacy best practices
+- always assume any content here will be exposed to a public repository
