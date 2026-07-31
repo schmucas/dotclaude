@@ -1,6 +1,6 @@
 ---
 name: lakeflow-jobs
-description: Write or develop a Databricks Workflows job, notebook task — orchestration and ETL logic that runs as a notebook or multi-task job on Databricks. Use whenever asked to write/build/create a Databricks notebook, task, or job. Do NOT use this for Lakeflow Declarative Pipelines (DLT / SPD / declarative pipeline) — those follow separate conventions (see lakeflow-review).
+description: Write or develop a Databricks Workflows job, notebook task — orchestration and ETL logic that runs as a notebook or multi-task job on Databricks. Use whenever asked to write/build/create a Databricks notebook, task, or job. Do NOT use this for Lakeflow Declarative Pipelines (DLT / SPD / declarative pipeline) — those follow separate conventions (see lakeflow-review). Pair with the databricks-conventions skill for the cross-cutting Unity Catalog, bundle hygiene, and secrets checks that apply to any Databricks code, not just pipelines.
 ---
 
 # Lakeflow Jobs / notebook task development

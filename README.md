@@ -64,6 +64,8 @@ If yes, it is a plugin. If no, it is global.
 ### Skills
 
 `plugins/databricks/skills/lakeflow-review/SKILL.md`
+`plugins/databricks/skills/lakeflow-jobs/SKILL.md`
+`plugins/databricks/skills/databricks-conventions/SKILL.md`
 
 ### Hooks
 
@@ -88,7 +90,10 @@ dotclaude/
 │   ├── core/
 │   │   └── agents/security-scanner.md
 │   └── databricks/
-│       └── skills/lakeflow-review/SKILL.md
+│       └── skills/
+│           ├── lakeflow-review/SKILL.md
+│           ├── lakeflow-jobs/SKILL.md
+│           └── databricks-conventions/SKILL.md
 ├── templates/
 │   └── project-settings.json     drop into a new project to opt in
 └── install.sh                    idempotent symlink installer
