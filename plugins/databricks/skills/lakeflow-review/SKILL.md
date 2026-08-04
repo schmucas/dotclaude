@@ -1,52 +1,48 @@
 ---
 name: lakeflow-review
-description: Review Databricks Lakeflow Declarative Pipeline code and Declarative Automation Bundle (DAB) YAML against pipeline-specific conventions (API spelling, SQL vs Python, declarative structure, wheel tasks, serverless assumptions). Use when reviewing a transformation file, a pipeline resource definition, or when the user asks whether a pipeline change follows project standards. Pair with the databricks-conventions skill for the cross-cutting Unity Catalog, bundle hygiene, and secrets checks that apply to any Databricks code, not just pipelines.
+description: Review a Lakeflow Declarative Pipeline transformation or pipeline resource against Luca's project rules: current dp API spelling, Python pipelines only and never SQL, transformations that stay declarative rather than importable. Use when asked to review a transformation file, a pipeline definition, or whether a pipeline change follows project standards. For how declarative pipelines work in general, defer to the vendor databricks-pipelines skill. Pair with databricks-conventions.
 ---
 
-# Lakeflow / DAB review
+# Pipeline review
 
-Review the supplied Databricks code or YAML against the checks below. Report only
-findings. Do not rewrite the user's code unless explicitly asked.
+For how Lakeflow Declarative Pipelines work, use the vendor `databricks-pipelines`
+skill. This file is only the project rules that skill cannot know, and the review
+format.
 
-## Output format
-
-For each finding:
-
-```
-[BLOCKER|WARN|NIT] <file>:<line> - <what is wrong>
-  Why: <one line>
-  Fix: <one line, describe the change, do not paste a full rewrite>
-```
-
-If nothing is found in a category, say so in one line. Finish with a one line verdict.
+Report findings. Do not rewrite the code unless explicitly asked.
 
 ## Checks
 
-Cross-cutting checks (Unity Catalog vs DBFS, bundle hygiene, secrets/PII) live in the
-`databricks-conventions` skill and apply here too — run those alongside the
-pipeline-specific checks below.
+### 1. API spelling (BLOCKER)
 
-### 1. Pipeline API spelling (BLOCKER)
+Correct: `from pyspark import pipelines as dp` and `@dp.table`.
+Legacy: `import dlt` and `@dlt.table`. Functional, but drift, so flag it.
 
-Declarative pipelines must use the current API:
+### 2. Python pipelines only (BLOCKER)
 
-- Correct: `from pyspark import pipelines as dp` and the `@dp.table` decorator.
-- Legacy: `import dlt` and `@dlt.table`. Still functional, but flag it as drift.
-
-Lakeflow Declarative Pipelines is the current name for what used to be DLT.
-
-### 2. No SQL pipelines (BLOCKER)
-
-All pipeline logic is Python. A `.sql` file included in a pipeline's source glob is
-a blocker. Ordinary `spark.sql(...)` calls inside a Python transformation are fine.
+Every pipeline is Python. A `.sql` file inside a pipeline's source glob is a
+blocker, with no exceptions and no "consider SQL here" suggestions. Ordinary
+`spark.sql(...)` inside a Python transformation is fine.
 
 ### 3. Transformations stay declarative (WARN)
 
-Transformation files run inside the pipeline, they are not imported. Flag any of:
+Transformation files run inside the pipeline. They are not imported. Flag:
 
-- module level `def build_table(cfg)` factories intended to be imported
+- module level factories such as `def build_table(cfg)` meant to be imported
 - `if __name__ == "__main__"` blocks
 - imports from sibling transformation files
 - classes wrapping table definitions
 
-Reusable, testable logic belongs in the separate utils wheel, not here.
+Reusable logic belongs in the utils wheel repo, not here. Do not suggest
+refactoring a transformation into a reusable module inside the pipeline, that is
+the wrong direction.
+
+## Output format
+
+```
+[BLOCKER|WARN|NIT] <file>:<line> - <what is wrong>
+  Why: <one line>
+  Fix: <one line describing the change, not a rewrite>
+```
+
+Say so in one line when a category is clean. Finish with a one line verdict.

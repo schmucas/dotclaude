@@ -1,14 +1,22 @@
 {
-  "$comment": "Copy to <new-project>/.claude/settings.json and commit it. On trusting the folder, Claude Code offers to install the listed plugins. Trim enabledPlugins to what the project actually needs.",
+  "$comment": "Copy to <new-project>/.claude/settings.json and commit it. On trusting the folder, Claude Code offers to install the listed plugins. Trim enabledPlugins to what the project actually needs: core is domain neutral, databricks@schmucas-dotclaude carries my conventions, databricks@databricks-agent-skills is the first-party platform knowledge. A workspace connection is the third layer and does not belong here, it goes in the project's own .mcp.json.",
   "extraKnownMarketplaces": {
-    "luca": {
+    "schmucas-dotclaude": {
       "source": {
         "source": "github",
         "repo": "schmucas/dotclaude"
       }
+    },
+    "databricks-agent-skills": {
+      "source": {
+        "source": "github",
+        "repo": "databricks/databricks-agent-skills"
+      }
     }
   },
   "enabledPlugins": {
-    "databricks@luca": true
+    "core@schmucas-dotclaude": true,
+    "databricks@schmucas-dotclaude": true,
+    "databricks@databricks-agent-skills": true
   }
 }

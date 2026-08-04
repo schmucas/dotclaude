@@ -2,11 +2,11 @@
 
 # dotclaude
 
-**Version-controlled Claude Code configuration: global instructions, reusable skills, and subagents, delivered two different ways from one repo.**
+**Version-controlled Claude Code configuration: instructions, skills, subagents and enforcing hooks, delivered two different ways from one repo.**
 
 [![Claude Code](https://img.shields.io/badge/Claude_Code-plugin_marketplace-D97757)](https://code.claude.com/docs/en/plugin-marketplaces)
 [![Skills](https://img.shields.io/badge/skills-agent_skills-4B5563)](https://code.claude.com/docs/en/skills)
-[![Subagents](https://img.shields.io/badge/subagents-security_scanner-4B5563)](https://code.claude.com/docs/en/sub-agents)
+[![Subagents](https://img.shields.io/badge/subagents-4_read_only-4B5563)](https://code.claude.com/docs/en/sub-agents)
 [![Shell](https://img.shields.io/badge/install-idempotent_symlinks-4B5563)](install.sh)
 
 </div>
@@ -47,7 +47,7 @@ flowchart LR
 | **Mechanism** | symlinks into `~/.claude` | plugin marketplace |
 | **Scope** | every project on the machine | only repos that opt in |
 | **Updates** | live, edit or `git pull` | on demand, `/plugin marketplace update` |
-| **Holds** | how I work, style, always-on skills | domain skills, subagents, commands |
+| **Holds** | how I work, style, always-on skills | domain skills, subagents, hooks |
 | **Good for** | facts about *me* | facts about *a kind of work* |
 
 The test for where something goes: *would this be noise in an unrelated project?*
@@ -59,17 +59,35 @@ If yes, it is a plugin. If no, it is global.
 
 ### Subagents
 
-- [`plugins/core/agents/security-scanner.md`](plugins/core/agents/security-scanner.md)
+Read only. They report findings and never rewrite code.
+
+| Agent | Plugin | Does |
+|---|---|---|
+| [`security-scanner`](plugins/core/agents/security-scanner.md) | core | Vulnerabilities, secrets, dependencies, IaC misconfig in a diff |
+| [`docs-drift-checker`](plugins/core/agents/docs-drift-checker.md) | core | Verifies every README and diagram claim against the actual repo |
+| [`cost-perf-auditor`](plugins/databricks/agents/cost-perf-auditor.md) | databricks | Spark and layout anti-patterns, ranked by what they cost |
+| [`schema-impact`](plugins/databricks/agents/schema-impact.md) | databricks | Blast radius of a schema change, including silently-wrong readers |
 
 ### Skills
 
-- [`plugins/databricks/skills/lakeflow-review/SKILL.md`](plugins/databricks/skills/lakeflow-review/SKILL.md)
-- [`plugins/databricks/skills/lakeflow-jobs/SKILL.md`](plugins/databricks/skills/lakeflow-jobs/SKILL.md)
-- [`plugins/databricks/skills/databricks-conventions/SKILL.md`](plugins/databricks/skills/databricks-conventions/SKILL.md)
+| Skill | Plugin | Covers |
+|---|---|---|
+| [`house-style-docs`](plugins/core/skills/house-style-docs/SKILL.md) | core | README structure, prose rules, Mermaid on GitHub |
+| [`databricks-conventions`](plugins/databricks/skills/databricks-conventions/SKILL.md) | databricks | UC only, three fixed targets, secrets on Free Edition |
+| [`lakeflow-review`](plugins/databricks/skills/lakeflow-review/SKILL.md) | databricks | dp API spelling, Python pipelines only, transformations stay declarative |
+| [`lakeflow-jobs`](plugins/databricks/skills/lakeflow-jobs/SKILL.md) | databricks | Notebook house style: DataFrame API only, fixed cell layout |
 
 ### Hooks
 
-- [`home/hooks/format-on-save.sh`](home/hooks/format-on-save.sh)
+| Hook | Where | Event | Does |
+|---|---|---|---|
+| [`format-on-save.sh`](home/hooks/format-on-save.sh) | global | PostToolUse | Formats after every Write or Edit |
+| [`guard-conventions.py`](plugins/databricks/hooks/guard-conventions.py) | databricks plugin | PreToolUse | **Blocks** a write containing a DBFS path, `/mnt/`, `dbutils.fs` or `@dlt.table` |
+
+The guard is the point of the plugin half. A convention written in a `CLAUDE.md` is a
+request the model can drift from. The same convention in a PreToolUse hook exits 2 and
+the write does not happen. Installing the plugin carries the enforcement with it, because
+plugin hooks activate on install with no per-project wiring to copy around.
 
 ---
 
@@ -87,13 +105,20 @@ dotclaude/
 ├── modules/                      CLAUDE.md fragments, imported on demand
 │   └── databricks-conventions.md
 ├── plugins/                      installed per project
-│   ├── core/
-│   │   └── agents/security-scanner.md
-│   └── databricks/
-│       └── skills/
-│           ├── lakeflow-review/SKILL.md
-│           ├── lakeflow-jobs/SKILL.md
-│           └── databricks-conventions/SKILL.md
+│   ├── core/                     domain neutral, safe anywhere
+│   │   ├── agents/               security-scanner, docs-drift-checker
+│   │   └── skills/               house-style-docs
+│   └── databricks/               only for repos that touch Databricks
+│       ├── agents/               cost-perf-auditor, schema-impact
+│       ├── hooks/                hooks.json + guard-conventions.py
+│       └── skills/               databricks-conventions, lakeflow-review,
+│                                 lakeflow-jobs
+├── evals/                        does the config behave as intended
+│   ├── triggers.yaml             prompt -> expected skill or agent
+│   ├── fixtures/                 files with planted violations
+│   └── run.py                    harness, reports rates not pass/fail
+├── scripts/
+│   └── validate.py               deterministic config checks, runs in CI
 ├── templates/
 │   └── project-settings.json     drop into a new project to opt in
 └── install.sh                    idempotent symlink installer
@@ -103,67 +128,75 @@ dotclaude/
 
 ## Setup
 
-### Once per machine
-
 ```bash
 git clone git@github.com:schmucas/dotclaude.git ~/git-repos/dotclaude
-cd ~/git-repos/dotclaude
-./install.sh --dry     # preview, touches nothing
-./install.sh
+./dotclaude/install.sh --dry   # preview, touches nothing
+./dotclaude/install.sh         # symlink the global half
 ```
 
-Resulting links:
+Per project, commit `templates/project-settings.json` to `<project>/.claude/settings.json`.
+Claude Code offers to install the listed plugins when the folder is first trusted, so a
+fresh clone is configured with no manual step. The repo carries its own agent
+configuration the same way it carries its own linter config.
 
-```
-~/.claude/CLAUDE.md     -> dotclaude/home/CLAUDE.md
-~/.claude/settings.json -> dotclaude/home/settings.json
-~/.claude/skills        -> dotclaude/home/skills
-~/.claude/hooks         -> dotclaude/home/hooks
-~/.claude/modules       -> dotclaude/modules
-```
+---
 
-Symlinks are pointers, not copies, so a `git pull` updates every project on the machine
-with nothing to reinstall. The installer is idempotent and backs up any real file
-already sitting at a target path instead of overwriting it. `--unlink` reverses it.
+## Testing the configuration
 
-### Per project
+The repo argues that agent configuration is software. These two make that testable rather
+than merely asserted.
 
-Register the marketplace once:
+**`scripts/validate.py`, deterministic, blocking.** Frontmatter present and matching its
+directory, descriptions long enough to trigger, JSON parsing, marketplace entries
+resolving to real plugins, hook commands existing and executable and carrying a shebang,
+every name in the eval suite resolving to a real skill, no em-dashes, no dead README links.
+Runs on every pull request, and locally in under a second:
 
-```
-/plugin marketplace add schmucas/dotclaude
-```
-
-Then install where wanted:
-
-```
-/plugin install databricks@luca
+```bash
+python3 scripts/validate.py
 ```
 
-Or commit `templates/project-settings.json` to `<project>/.claude/settings.json`, and
-Claude Code offers to install the listed plugins when the folder is first trusted. A
-fresh clone of that project is then configured with no manual step, which is the point:
-the repo carries its own agent configuration the same way it carries its own linter
-config.
+**`evals/`, statistical, advisory.** A skill fails in two unrelated ways: it does not
+trigger when it should, or it triggers and gets the answer wrong. The first is a property
+of the `description` field alone and is stochastic, so the harness runs each prompt
+several times and reports a rate:
+
+```bash
+python3 evals/run.py --runs 5
+```
+
+A skill that fires 7 times in 10 is a real defect that a single run hides completely. The
+prompts that matter are the near misses, the pairs the set is genuinely at risk of
+confusing: `lakeflow-review` against `cost-perf-auditor` when a review is really a
+performance question, `house-style-docs` against `docs-drift-checker`, `lakeflow-jobs`
+against `lakeflow-review`. Negative cases assert that an ordinary Python question loads
+nothing at all.
 
 ---
 
 ## Design notes
 
 **Plugins are cached copies, symlinks are live.** Fast-moving personal preferences go in
-`home/` so they take effect immediately. Stable, shareable capability goes in `plugins/`
-so it updates deliberately and stays pinned until asked.
+`home/` so they take effect immediately, and a `git pull` updates every project on the
+machine with nothing to reinstall. Stable, shareable capability goes in `plugins/` so it
+updates deliberately and stays pinned until asked.
+
+**Databricks work is three decoupled layers, on purpose.** A repo that builds on
+Databricks gets its agent configuration from three independent sources, and none of them
+owns the others:
+
+| Layer | Source | Owns | Changes when |
+|---|---|---|---|
+| Rules and style | `databricks@schmucas-dotclaude`, this repo | Conventions of these repos, enforced by hook | I change my mind |
+| Platform knowledge | [`databricks@databricks-agent-skills`](https://github.com/databricks/databricks-agent-skills) | How Databricks itself works | Databricks ships something |
+| Workspace connection | the project's own `.mcp.json` | Which workspace, which credentials | The workspace does |
+
+Each is enabled or removed on its own, in one line of the project's
+`.claude/settings.json` for the first two and one file for the third.
 
 ---
 
 ## Gotchas worth knowing
-
-Installing a plugin copies its directory into a cache, so a plugin cannot reference
-paths outside itself such as `../shared`. Shared content must be duplicated, or
-symlinked inside the plugin directory.
-
-`@path` imports resolve up to four hops deep, relative to the importing file rather than
-the working directory.
 
 Nothing secret belongs in this repo, since it is public. Machine-specific overrides go
 in `settings.local.json`, which is gitignored.
