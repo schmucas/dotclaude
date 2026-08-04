@@ -1,0 +1,55 @@
+name: evals
+
+# Trigger accuracy for the skills and agents in this repo. Costs tokens and needs
+# auth, so it runs on demand and on a weekly cadence rather than on every push.
+# Triggering is stochastic, so the result is a rate, not a pass or fail.
+
+on:
+  workflow_dispatch:
+    inputs:
+      runs:
+        description: Repeats per case
+        required: false
+        default: "5"
+      filter:
+        description: Only cases matching this string
+        required: false
+        default: ""
+  schedule:
+    - cron: "0 6 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  triggers:
+    name: trigger accuracy
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install pyyaml
+
+      - name: Install Claude Code
+        run: npm install -g @anthropic-ai/claude-code
+
+      - name: Run trigger evals
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          python3 evals/run.py \
+            --runs "${{ github.event.inputs.runs || '5' }}" \
+            --filter "${{ github.event.inputs.filter || '' }}" \
+            --json eval-report.json
+
+      - name: Upload report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eval-report
+          path: eval-report.json

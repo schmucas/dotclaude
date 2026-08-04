@@ -1,7 +1,7 @@
 {
   "$comment": "Symlinked to ~/.claude/settings.json. Personal defaults for every project. Never put secrets here, this file is committed.",
   "extraKnownMarketplaces": {
-    "luca": {
+    "schmucas-dotclaude": {
       "source": {
         "source": "github",
         "repo": "schmucas/dotclaude"
@@ -9,7 +9,7 @@
     }
   },
   "enabledPlugins": {
-    "core@luca": true
+    "core@schmucas-dotclaude": true
   },
   "hooks": {
     "PostToolUse": [

@@ -1,0 +1,82 @@
+# Trigger evals: does the right skill or agent load for a given prompt.
+#
+# `expect` is what should load. `null` means nothing from this repo should load,
+# which is the case these suites usually forget and the reason a greedy
+# description goes unnoticed for months.
+#
+# `why` exists so a failing row explains itself without archaeology.
+
+cases:
+  # ---------------------------------------------------------------- skills
+  - prompt: "Review this transformation file against our pipeline standards."
+    expect: lakeflow-review
+    why: Reviewing a declarative pipeline, single file, so the skill not the agent.
+
+  - prompt: "Write me a notebook task that reads the change data feed from a Delta table."
+    expect: lakeflow-jobs
+    why: Authoring a notebook task, not reviewing a pipeline.
+
+  - prompt: "Is it ok to read from /mnt/raw in this job?"
+    expect: databricks-conventions
+    why: Cross-cutting UC vs DBFS question, belongs to the shared baseline.
+
+  - prompt: "Draft the README for this repo."
+    expect: house-style-docs
+    why: Authoring docs.
+
+  # ---------------------------------------------------------------- agents
+  - prompt: "Why is this job so expensive to run?"
+    expect: cost-perf-auditor
+    why: Cost question, no correctness or security framing.
+
+  - prompt: "I want to rename customer_id to cust_id in the silver table. What breaks?"
+    expect: schema-impact
+    why: Blast radius question.
+
+  - prompt: "Scan this diff before I merge it."
+    expect: security-scanner
+    why: Security review of pending changes.
+
+  - prompt: "Does the README still match what is actually in the repo?"
+    expect: docs-drift-checker
+    why: Verifying docs against code, the inverse of house-style-docs.
+
+  # ------------------------------------------------- near misses, the point
+  # Each pair below is one the description set is genuinely at risk of confusing.
+  # These are worth more than the clean cases above.
+  - prompt: "Have a look at this one transformation and tell me if it follows our conventions."
+    expect: lakeflow-review
+    why: Conventions, not performance, so it must not land on cost-perf-auditor.
+
+  - prompt: "Check every transformation and the databricks.yml together for drift."
+    expect: lakeflow-review
+    why: Repo wide but still a conventions review, and the skill owns that now.
+
+  - prompt: "This join has a few tasks running way longer than the rest."
+    expect: cost-perf-auditor
+    why: Skew symptom, must not be read as a correctness review.
+
+  - prompt: "Fix the tone of this README, it reads like marketing copy."
+    expect: house-style-docs
+    why: Authoring style, must not trigger docs-drift-checker.
+
+  - prompt: "The setup section lists a script that I do not think exists any more."
+    expect: docs-drift-checker
+    why: Verification, must not trigger house-style-docs.
+
+  - prompt: "Are there any hardcoded tokens in what I just changed?"
+    expect: security-scanner
+    why: Secrets, must not be absorbed by databricks-conventions, which also mentions secrets.
+
+  # ---------------------------------------------------------------- negatives
+  - prompt: "What is the difference between a list and a tuple in Python?"
+    expect: null
+    why: Nothing here should fire on plain Python.
+
+  - prompt: "How do I rebase my branch onto main?"
+    expect: null
+    why: Nothing here should fire on plain git.
+
+  - prompt: "Write a bash script that renames every .txt in a folder."
+    expect: null
+    why: Scripting, no Databricks and no docs framing.
