@@ -1,14 +1,19 @@
 ---
 name: lakeflow-jobs
-description: Write or develop a Databricks Workflows job, notebook task — orchestration and ETL logic that runs as a notebook or multi-task job on Databricks. Use whenever asked to write/build/create a Databricks notebook, task, or job. Do NOT use this for Lakeflow Declarative Pipelines (DLT / SPD / declarative pipeline) — those follow separate conventions (see lakeflow-review). Pair with the databricks-conventions skill for the cross-cutting Unity Catalog, bundle hygiene, and secrets checks that apply to any Databricks code, not just pipelines.
+description: Luca's house style for writing Databricks notebooks and job tasks: DataFrame API only and never Spark SQL, and a fixed cell layout with imports, constants and configs in the first four cells. Use whenever writing or editing a Databricks notebook or job task. For job orchestration itself, task types, triggers and schedules, defer to the vendor databricks-jobs skill. Not for declarative pipelines, see lakeflow-review.
 ---
 
-# Lakeflow Jobs / notebook task development
+# Notebook house style
 
-## Writing Style
-- always use the data frame api in pyspark. dont write spark sql
-- write df tranformations in a clear and human readable way like 
-in this example:
+Task types, triggers, schedules and notifications are covered by the vendor
+`databricks-jobs` skill. This file is only how the notebook itself should read.
+
+## DataFrame API, never Spark SQL
+
+Always the PySpark DataFrame API. Do not write `spark.sql("SELECT ...")` in a
+notebook task, and do not offer it as an alternative.
+
+Chain transformations one operation per line, parenthesised:
 
 ```python
 # COMMAND ----------
@@ -21,14 +26,10 @@ df = (
     )
 ```
 
-## Notebook structure
+## Cell layout
 
-- imports at the top and in a separate cell
-- keep logical steps in separate cells like imports, configs, functions, data frame transformations
-- in the second cell from the top, add constants
-- add configs to the third and 4th cell
-
-Example cell layout, shown in Databricks' notebook source format:
+One logical step per cell, in this order. Imports first and alone, constants second,
+configs third and fourth, then derived names, then transformations.
 
 ```python
 # Databricks notebook source
@@ -59,3 +60,6 @@ target_table = f"{CATALOG}.{SCHEMA}.{TABLE_NAME}"
 checkpoint_path = f"{CHECKPOINT_BASE}/{TABLE_NAME}/"
 print(source_table, target_table, checkpoint_path)
 ```
+
+Catalog and schema come from a config cell, never hardcoded mid-notebook.
+Checkpoints live under a UC Volume, never DBFS.

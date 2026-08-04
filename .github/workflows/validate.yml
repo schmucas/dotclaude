@@ -1,0 +1,48 @@
+name: validate
+
+# Deterministic checks on the agent configuration itself. Anything needing
+# judgement lives in evals/ and the docs-drift-checker agent, not here.
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  config:
+    name: config
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install pyyaml
+
+      - name: Validate plugins, skills, agents, hooks
+        run: python3 scripts/validate.py
+
+      - name: Lint shell hooks
+        run: |
+          sudo apt-get update -qq && sudo apt-get install -y shellcheck
+          # find, not a glob: plugins may ship no shell hooks at all
+          find home plugins -name '*.sh' -print0 | xargs -0 --no-run-if-empty shellcheck
+
+  secrets:
+    name: secrets
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # gitleaks scans history, not just the tip
+
+      - name: Scan for committed secrets
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,35 +1,37 @@
 ---
 name: databricks-conventions
-description: Cross-cutting Databricks platform conventions — Unity Catalog vs DBFS, bundle/target hygiene, secrets and PII handling — that apply to any Databricks code or databricks.yml, regardless of whether it's a Lakeflow Declarative Pipeline, a Lakeflow Job/notebook task, or something else. This is the shared baseline lakeflow-review and lakeflow-jobs both build on; load it alongside whichever of those matches the task rather than as a standalone trigger.
+description: Luca's project-specific Databricks rules, the ones that differ from ordinary Databricks practice. Unity Catalog only with no DBFS anywhere, three fixed bundle targets, and secrets handling on Free Edition. Load alongside the vendor databricks-core and databricks-dabs skills, which cover general platform and bundle guidance. This one covers only the deltas, so it does not replace them.
 ---
 
-# Databricks platform conventions
+# Project conventions
 
-Rules that hold across every kind of Databricks work in this environment — pipelines,
-jobs, notebooks, DAB YAML. Task-specific skills (`lakeflow-review` for reviewing
-Lakeflow Declarative Pipelines, `lakeflow-jobs` for writing notebook tasks/jobs) build
-on these instead of repeating them.
+General Databricks and DAB guidance lives in the vendor `databricks-core` and
+`databricks-dabs` skills. Defer to those. This file holds only the rules that are
+specific to these repos, which no vendor skill knows about.
 
 ## Unity Catalog only, no DBFS
 
-Flag any of: `/dbfs/`, `/mnt/`, `dbutils.fs.*`, bare `/tmp/`, `dbfs:/`.
+Flag any of `/dbfs/`, `/mnt/`, `dbutils.fs.*`, bare `/tmp/`, `dbfs:/`.
 
-Expected shapes: `<catalog>.<schema>.<table>` tables and
+Expected shapes: `<catalog>.<schema>.<table>` tables, and
 `/Volumes/<catalog>/<schema>/<volume>/` paths.
 
-This is a blocker wherever it appears — pipeline code, notebook tasks, or ad hoc
-scripts alike.
+Blocker wherever it appears. The PreToolUse guard in this plugin already blocks
+writes containing these, so if one reaches a review, something bypassed the hook
+and that is worth mentioning.
 
-## Bundle hygiene
+## Bundle targets
 
-- Hardcoded workspace URLs, catalog names or paths that should be target variables.
-- Missing or inconsistent `dev` / `stage` / `prod` targets.
-- `mode: development` missing on the dev target.
-- Resource names that will collide across targets (no `${bundle.target}` or
-  `${workspace.current_user.short_name}` prefix where one is needed).
+Exactly three: `dev`, `stage`, `prod`. Flag a missing target, a fourth one, or
+`mode: development` missing on `dev`.
 
-## Secrets and PII
+Catalogs, schemas and workspace hosts are target variables, never literals. Resource
+names carry `${bundle.target}` or `${workspace.current_user.short_name}` where two
+targets share a workspace.
 
-Flag any literal token, PAT, connection string, key, password, or personal data in
-code, YAML, notebooks, or committed config. PATs belong in GitHub Environment
-secrets or a Databricks secret scope (`dbutils.secrets.get(...)`), never hardcoded.
+## Secrets
+
+Free Edition has no account console, so authentication is PAT based and OAuth M2M is
+not available. PATs belong in a GitHub Environment secret or a Databricks secret
+scope, never in code, YAML or committed config. Flag any literal token, connection
+string, key, password or personal data.
