@@ -57,34 +57,46 @@ If yes, it is a plugin. If no, it is global.
 
 ## What is in here
 
-### Subagents
+Grouped by where it lives, because where something lives is the decision. Subagents are
+read only throughout: they report findings and never rewrite code.
 
-Read only. They report findings and never rewrite code.
+### `home/`, the global half
 
-| Agent | Plugin | Does |
+Symlinked into `~/.claude`, so it is on in every project on the machine.
+
+| | Kind | Does |
 |---|---|---|
-| [`security-scanner`](plugins/core/agents/security-scanner.md) | core | Vulnerabilities, secrets, dependencies, IaC misconfig in a diff |
-| [`docs-drift-checker`](plugins/core/agents/docs-drift-checker.md) | core | Verifies every README and diagram claim against the actual repo |
-| [`cost-perf-auditor`](plugins/databricks/agents/cost-perf-auditor.md) | databricks | Spark and layout anti-patterns, ranked by what they cost |
-| [`schema-impact`](plugins/databricks/agents/schema-impact.md) | databricks | Blast radius of a schema change, including silently-wrong readers |
+| [`CLAUDE.md`](home/CLAUDE.md) | Instructions | How I work: branch and PR discipline, docstrings, writing style |
+| [`settings.json`](home/settings.json) | Settings | Marketplace registration, always-on plugins, hook wiring |
+| [`format-on-save.sh`](home/hooks/format-on-save.sh) | Hook, PostToolUse | Formats after every Write or Edit |
+| [`modules/`](modules/) | Fragments | `CLAUDE.md` sections imported on demand rather than always loaded |
 
-### Skills
+### `plugins/core`, domain neutral
 
-| Skill | Plugin | Covers |
+Safe in any repo, Databricks or not.
+
+| | Kind | Does |
 |---|---|---|
-| [`house-style-docs`](plugins/core/skills/house-style-docs/SKILL.md) | core | README structure, prose rules, Mermaid on GitHub |
-| [`databricks-conventions`](plugins/databricks/skills/databricks-conventions/SKILL.md) | databricks | UC only, three fixed targets, secrets on Free Edition |
-| [`lakeflow-review`](plugins/databricks/skills/lakeflow-review/SKILL.md) | databricks | dp API spelling, Python pipelines only, transformations stay declarative |
-| [`lakeflow-jobs`](plugins/databricks/skills/lakeflow-jobs/SKILL.md) | databricks | Notebook house style: DataFrame API only, fixed cell layout |
+| [`security-scanner`](plugins/core/agents/security-scanner.md) | Subagent | Vulnerabilities, secrets, dependencies, IaC misconfig in a diff |
+| [`docs-drift-checker`](plugins/core/agents/docs-drift-checker.md) | Subagent | Verifies every README and diagram claim against the actual repo |
+| [`house-style-docs`](plugins/core/skills/house-style-docs/SKILL.md) | Skill | README structure, prose rules, Mermaid on GitHub |
 
-### Hooks
+### `plugins/databricks`, only where it applies
 
-| Hook | Where | Event | Does |
-|---|---|---|---|
-| [`format-on-save.sh`](home/hooks/format-on-save.sh) | global | PostToolUse | Formats after every Write or Edit |
-| [`guard-conventions.py`](plugins/databricks/hooks/guard-conventions.py) | databricks plugin | PreToolUse | **Blocks** a write containing a DBFS path, `/mnt/`, `dbutils.fs` or `@dlt.table` |
+Deltas from ordinary Databricks practice. Platform knowledge itself comes from
+[`databricks-agent-skills`](https://github.com/databricks/databricks-agent-skills),
+installed alongside.
 
-The guard is the point of the plugin half. A convention written in a `CLAUDE.md` is a
+| | Kind | Does |
+|---|---|---|
+| [`cost-perf-auditor`](plugins/databricks/agents/cost-perf-auditor.md) | Subagent | Spark and layout anti-patterns, ranked by what they cost |
+| [`schema-impact`](plugins/databricks/agents/schema-impact.md) | Subagent | Blast radius of a schema change, including silently-wrong readers |
+| [`databricks-conventions`](plugins/databricks/skills/databricks-conventions/SKILL.md) | Skill | UC only, three fixed targets, secrets on Free Edition |
+| [`lakeflow-review`](plugins/databricks/skills/lakeflow-review/SKILL.md) | Skill | dp API spelling, Python pipelines only, transformations stay declarative |
+| [`lakeflow-jobs`](plugins/databricks/skills/lakeflow-jobs/SKILL.md) | Skill | Notebook house style: DataFrame API only, fixed cell layout |
+| [`guard-conventions.py`](plugins/databricks/hooks/guard-conventions.py) | Hook, PreToolUse | **Blocks** a write containing a DBFS path, `/mnt/`, `dbutils.fs` or `@dlt.table` |
+
+That last row is the point of the plugin half. A convention written in a `CLAUDE.md` is a
 request the model can drift from. The same convention in a PreToolUse hook exits 2 and
 the write does not happen. Installing the plugin carries the enforcement with it, because
 plugin hooks activate on install with no per-project wiring to copy around.
