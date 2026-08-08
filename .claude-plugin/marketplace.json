@@ -1,8 +1,7 @@
 {
   "name": "schmucas-dotclaude",
   "owner": {
-    "name": "Luca Zwicky",
-    "email": "REDACTED"
+    "name": "Luca Zwicky"
   },
   "metadata": {
     "description": "Personal Claude Code plugins: reusable skills, commands and agents.",
