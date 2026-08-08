@@ -1,5 +1,5 @@
 {
-  "$comment": "Symlinked to ~/.claude/settings.json. Personal defaults for every project. Never put secrets here, this file is committed.",
+  "$comment": "Standalone file, not symlinked. Personal defaults for every project. Never put secrets here, this file is committed.",
   "extraKnownMarketplaces": {
     "schmucas-dotclaude": {
       "source": {
