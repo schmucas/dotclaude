@@ -1,6 +1,6 @@
 ---
 name: lakeflow-jobs
-description: Luca's house style for writing Databricks notebooks and job tasks: DataFrame API only and never Spark SQL, and a fixed cell layout with imports, constants and configs in the first four cells. Use whenever writing or editing a Databricks notebook or job task. For job orchestration itself, task types, triggers and schedules, defer to the vendor databricks-jobs skill. Not for declarative pipelines, see lakeflow-review.
+description: "Luca's house style for writing Databricks notebooks and job tasks: DataFrame API only and never Spark SQL, and a fixed cell layout with imports, constants and configs in the first four cells. Use whenever writing or editing a Databricks notebook or job task. For job orchestration itself, task types, triggers and schedules, defer to the vendor databricks-jobs skill. Not for declarative pipelines, see lakeflow-review."
 ---
 
 # Notebook house style

@@ -1,5 +1,5 @@
 {
-  "$comment": "Copy to <new-project>/.claude/settings.json and commit it. On trusting the folder, Claude Code offers to install the listed plugins. Trim enabledPlugins to what the project actually needs: core is domain neutral, databricks@schmucas-dotclaude carries my conventions, databricks@databricks-agent-skills is the first-party platform knowledge. A workspace connection is the third layer and does not belong here, it goes in the project's own .mcp.json.",
+  "$comment": "Copy to <new-project>/.claude/settings.json and commit it. On trusting the folder, Claude Code offers to install the listed plugins. Trim enabledPlugins to what the project actually needs: core is domain neutral and also brings a PostToolUse formatter that runs after every Write or Edit, databricks@schmucas-dotclaude carries my conventions and a PreToolUse guard that blocks writes, databricks@databricks-agent-skills is the first-party platform knowledge. A workspace connection is the third layer and does not belong here, it goes in the project's own .mcp.json.",
   "extraKnownMarketplaces": {
     "schmucas-dotclaude": {
       "source": {

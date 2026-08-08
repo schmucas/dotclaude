@@ -32,7 +32,7 @@ jobs:
         run: |
           sudo apt-get update -qq && sudo apt-get install -y shellcheck
           # find, not a glob: plugins may ship no shell hooks at all
-          find home plugins -name '*.sh' -print0 | xargs -0 --no-run-if-empty shellcheck
+          find plugins install.sh -name '*.sh' -print0 | xargs -0 --no-run-if-empty shellcheck
 
   secrets:
     name: secrets
