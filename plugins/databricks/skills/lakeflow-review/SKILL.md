@@ -1,6 +1,6 @@
 ---
 name: lakeflow-review
-description: Review a Lakeflow Declarative Pipeline transformation or pipeline resource against Luca's project rules: current dp API spelling, Python pipelines only and never SQL, transformations that stay declarative rather than importable. Use when asked to review a transformation file, a pipeline definition, or whether a pipeline change follows project standards. For how declarative pipelines work in general, defer to the vendor databricks-pipelines skill. Pair with databricks-conventions.
+description: "Review a Lakeflow Declarative Pipeline transformation or pipeline resource against Luca's project rules: current dp API spelling, Python pipelines only and never SQL, transformations that stay declarative rather than importable. Use when asked to review a transformation file, a pipeline definition, or whether a pipeline change follows project standards. For how declarative pipelines work in general, defer to the vendor databricks-pipelines skill. Pair with databricks-conventions."
 ---
 
 # Pipeline review

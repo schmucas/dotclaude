@@ -18,6 +18,15 @@ import re
 import sys
 from pathlib import Path
 
+try:
+    import yaml
+except ImportError:
+    sys.exit(
+        "this script needs pyyaml, run: pip install pyyaml\n"
+        "It parses frontmatter the way Claude Code does. A regex fallback would "
+        "pass files that silently fail to load, which is the bug it exists to catch."
+    )
+
 ROOT = Path(__file__).resolve().parent.parent
 
 FAILURES: list[str] = []
@@ -62,16 +71,31 @@ def load_json(path: Path) -> dict | None:
 
 
 def frontmatter(path: Path) -> dict[str, str] | None:
-    """Extract YAML frontmatter keys from a markdown file.
+    """Parse the YAML frontmatter of a markdown file.
 
-    Only top level `key: value` pairs are read, which is all the agent and skill
-    formats use. Returns None when the file has no frontmatter block.
+    Parsed with a real YAML loader rather than a regex, because Claude Code uses
+    one too. An unquoted description containing `: ` parses as a nested mapping
+    and the whole block is dropped at load time, so the skill silently never
+    triggers. A regex reads that file as perfectly healthy, which is how two
+    skills in this repo sat dead without anything noticing.
+
+    Returns None when the file has no frontmatter block. Records a failure and
+    returns None when the block is present but does not parse.
     """
     text = path.read_text()
     match = re.match(r"^---\n(.*?)\n---\n", text, re.S)
     if not match:
         return None
-    return dict(re.findall(r"^([A-Za-z_]+):\s*(.*)$", match.group(1), re.M))
+    try:
+        parsed = yaml.safe_load(match.group(1))
+    except yaml.YAMLError as exc:
+        detail = str(exc).splitlines()[0]
+        check(False, f"{rel(path)}: frontmatter is not valid YAML, {detail}")
+        return None
+    if not isinstance(parsed, dict):
+        check(False, f"{rel(path)}: frontmatter is not a mapping")
+        return None
+    return {k: str(v) for k, v in parsed.items()}
 
 
 # --------------------------------------------------------------------------
@@ -83,13 +107,19 @@ def check_markdown_units() -> None:
     """Every agent and skill has valid frontmatter whose name matches its path."""
     units = sorted(ROOT.glob("plugins/*/agents/*.md")) + sorted(
         ROOT.glob("plugins/*/skills/*/SKILL.md")
-    ) + sorted(ROOT.glob("home/skills/*/SKILL.md"))
+    )
 
     check(bool(units), "no agents or skills found, is the layout what this script expects")
 
     for unit in units:
         keys = frontmatter(unit)
-        if not check(keys is not None, f"{rel(unit)}: missing frontmatter block"):
+        if keys is None:
+            # A block that is present but unparseable has already been reported in
+            # detail by frontmatter(). Only its total absence is news here.
+            check(
+                unit.read_text().startswith("---\n"),
+                f"{rel(unit)}: missing frontmatter block",
+            )
             continue
 
         expected = unit.parent.name if unit.name == "SKILL.md" else unit.stem
@@ -153,28 +183,31 @@ def check_marketplace() -> None:
 
 def check_hook_targets() -> None:
     """Every command a hook config points at exists, is executable, has a shebang."""
-    configs = sorted(ROOT.glob("plugins/*/hooks/hooks.json")) + [ROOT / "home" / "settings.json"]
+    configs = sorted(ROOT.glob("plugins/*/hooks/hooks.json"))
+    check(bool(configs), "no plugin hooks.json found, is the layout what this script expects")
 
     for config in configs:
-        if not config.exists():
-            continue
         data = load_json(config)
         if data is None:
             continue
 
-        plugin_root = config.parent.parent if "plugins" in config.parts else ROOT
+        plugin_root = config.parent.parent
 
         for event, matchers in (data.get("hooks") or {}).items():
             for matcher in matchers:
                 for hook in matcher.get("hooks", []):
                     command = hook.get("command", "")
-                    if "${CLAUDE_PLUGIN_ROOT}" in command:
-                        target = Path(command.replace("${CLAUDE_PLUGIN_ROOT}", str(plugin_root)))
-                    elif command.startswith("~/.claude/"):
-                        # Symlinked from home/, so resolve against the repo instead.
-                        target = ROOT / command.replace("~/.claude/", "home/", 1)
-                    else:
+                    if "${CLAUDE_PLUGIN_ROOT}" not in command:
+                        # A hook that resolves against anything but the plugin root
+                        # cannot be checked here, and would not survive being
+                        # installed from a marketplace anyway.
+                        check(
+                            False,
+                            f"{rel(config)} [{event}]: command does not use "
+                            f"${{CLAUDE_PLUGIN_ROOT}}, {command}",
+                        )
                         continue
+                    target = Path(command.replace("${CLAUDE_PLUGIN_ROOT}", str(plugin_root)))
 
                     label = f"{rel(config)} [{event}]"
                     if not check(target.exists(), f"{label}: hook command not found, {command}"):
@@ -187,6 +220,38 @@ def check_hook_targets() -> None:
                         target.read_bytes().startswith(b"#!"),
                         f"{label}: {rel(target)} has no shebang",
                     )
+
+
+def check_installer() -> None:
+    """install.sh links only files that exist, and never links settings.json.
+
+    Linking settings.json is the one mistake this repo has already made: Claude
+    Code writes to that file, so the link pointed the app at the git working tree
+    and let it edit the repo. The comment was corrected and the installer was not,
+    and nothing noticed for a week. Hence a check rather than a note.
+    """
+    script = ROOT / "install.sh"
+    if not check(script.exists(), "missing install.sh"):
+        return
+
+    text = script.read_text()
+    match = re.search(r"^LINKS=\((.*?)^\)", text, re.M | re.S)
+    if not check(match is not None, "install.sh: cannot find the LINKS array"):
+        return
+
+    names = re.findall(r'"([^"]+)"', match.group(1))
+    check(bool(names), "install.sh: LINKS is empty")
+
+    for name in names:
+        check(
+            (ROOT / "home" / name).exists(),
+            f"install.sh links home/{name}, which does not exist",
+        )
+        check(
+            name != "settings.json",
+            "install.sh links settings.json. Claude Code writes to that file, so "
+            "the link makes it edit this repo. Ship it as templates/user-settings.json",
+        )
 
 
 def check_mcp_config() -> None:
@@ -221,14 +286,7 @@ def check_eval_expectations() -> None:
     if not cases_file.exists():
         return
 
-    try:
-        import yaml  # noqa: PLC0415, imported lazily so the rest runs without it
-    except ImportError:
-        print("note: pyyaml not installed, skipping eval expectation check", file=sys.stderr)
-        return
-
     known = {p.parent.name for p in ROOT.glob("plugins/*/skills/*/SKILL.md")}
-    known |= {p.parent.name for p in ROOT.glob("home/skills/*/SKILL.md")}
     known |= {p.stem for p in ROOT.glob("plugins/*/agents/*.md")}
 
     cases = yaml.safe_load(cases_file.read_text()).get("cases", [])
@@ -283,6 +341,7 @@ def main() -> int:
         check_marketplace,
         check_eval_expectations,
         check_hook_targets,
+        check_installer,
         check_mcp_config,
         check_house_style,
         check_readme_links,

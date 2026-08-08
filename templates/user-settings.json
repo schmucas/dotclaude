@@ -1,0 +1,14 @@
+{
+  "$comment": "Reference copy of the global setup. Copy these keys into ~/.claude/settings.json, never symlink this file: Claude Code writes to settings.json when you run /plugin, /theme, or accept a workspace, so a link would let it edit this repo behind your back and could commit machine local state. Personal taste like theme and effortLevel is left out on purpose, Claude Code writes those for itself. Never put secrets here, this file is committed.",
+  "extraKnownMarketplaces": {
+    "schmucas-dotclaude": {
+      "source": {
+        "source": "github",
+        "repo": "schmucas/dotclaude"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "core@schmucas-dotclaude": true
+  }
+}
