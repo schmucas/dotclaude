@@ -2,9 +2,10 @@
 
 # dotclaude
 
-**Version-controlled Claude Code configuration: instructions, skills, subagents and enforcing hooks, shipped as plugins you install at whatever scope you want.**
+**Version-controlled agent configuration: Claude Code instructions, skills, subagents and enforcing hooks shipped as plugins, plus Genie Code skills published straight to Databricks.**
 
 [![Claude Code](https://img.shields.io/badge/Claude_Code-plugin_marketplace-D97757)](https://code.claude.com/docs/en/plugin-marketplaces)
+[![Genie Code](https://img.shields.io/badge/Genie_Code-databricks_skills-4B5563)](https://docs.databricks.com/aws/en/genie-code/)
 [![Skills](https://img.shields.io/badge/skills-agent_skills-4B5563)](https://code.claude.com/docs/en/skills)
 [![Subagents](https://img.shields.io/badge/subagents-4_read_only-4B5563)](https://code.claude.com/docs/en/sub-agents)
 [![Shell](https://img.shields.io/badge/install-one_symlink-4B5563)](install.sh)
