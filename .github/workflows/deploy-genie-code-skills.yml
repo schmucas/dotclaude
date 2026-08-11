@@ -1,0 +1,28 @@
+name: deploy-genie-code-skills
+
+# Publishes genie-code/skills/ as a catalog under /Workspace/Shared/genie-code-skills/.
+# This never touches /Workspace/.assistant/skills/, the path Genie Code actually
+# auto-scans, so nothing becomes active just because this ran. Enabling a skill in
+# Genie Code is a separate, manual step.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "genie-code/skills/**"
+  workflow_dispatch: {}
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}
+      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: databricks/setup-cli@main
+      - name: Publish genie-code skills catalog to the workspace
+        run: databricks workspace import-dir genie-code/skills /Workspace/Shared/genie-code-skills --overwrite
