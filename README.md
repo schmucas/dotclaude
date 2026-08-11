@@ -99,6 +99,22 @@ That last row is the point of shipping conventions as a plugin. A convention wri
 exits 2 and the write does not happen. Installing the plugin carries the enforcement with
 it, because plugin hooks activate on install with no per-project wiring to copy around.
 
+### `genie-code/`, published to Databricks, not a plugin
+
+Source content for [Genie Code](https://docs.databricks.com/aws/en/genie-code/) skills,
+Databricks' own AI coding assistant, built into notebooks, the SQL editor, the Lakeflow
+Pipelines Editor and more. Not a Claude Code plugin, so it lives outside `plugins/`: CI
+publishes `genie-code/skills/` to `/Workspace/Shared/genie-code-skills/` as a catalog on
+every merge to `main` ([`deploy-genie-code-skills.yml`](.github/workflows/deploy-genie-code-skills.yml)).
+Genie Code itself only auto-scans `/Workspace/.assistant/skills/`, so enabling a skill there
+is a separate, deliberate step, not automatic.
+
+| | Does |
+|---|---|
+| [`genie-code-conventions`](genie-code/skills/genie-code-conventions/SKILL.md) | UC only, no DBFS |
+| [`genie-code-lakeflow-review`](genie-code/skills/genie-code-lakeflow-review/SKILL.md) | dp API spelling, Python pipelines only, transformations stay declarative |
+| [`genie-code-lakeflow-jobs`](genie-code/skills/genie-code-lakeflow-jobs/SKILL.md) | Notebook house style: DataFrame API only, fixed cell layout |
+
 ### `home/`, the one exception
 
 | | Kind | Does |
@@ -125,6 +141,9 @@ dotclaude/
 │                                 lakeflow-jobs
 ├── home/
 │   └── CLAUDE.md                 global instructions, the only symlink
+├── genie-code/                   published to Databricks, not a plugin
+│   └── skills/                   genie-code-conventions, genie-code-lakeflow-review,
+│                                 genie-code-lakeflow-jobs
 ├── evals/                        does the config behave as intended
 │   ├── triggers.yaml             prompt -> expected skill or agent
 │   ├── fixtures/                 files with planted violations
