@@ -12,7 +12,7 @@ When creating and populating many empty pipeline files:
 1. Create all files with `createAsset` first.
 2. Use `editAsset` in batches of 3-5 files.
 3. For empty files: `old_text=""` and `replace_all=false`.
-4. Expect 60-second timeouts — they indicate success, not failure.
+4. Expect 60-second timeouts: they indicate success, not failure.
 5. Spot-check 2-3 files after each batch to verify.
 6. Don't retry timeouts, proceed to the next batch.
 
