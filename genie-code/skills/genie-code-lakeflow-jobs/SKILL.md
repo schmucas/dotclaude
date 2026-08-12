@@ -1,6 +1,6 @@
 ---
 name: genie-code-lakeflow-jobs
-description: "House style for Databricks notebooks and job tasks: DataFrame API only, never Spark SQL, with a fixed cell layout (imports, constants and configs in the first four cells). Use whenever Genie Code writes or edits a notebook or job task. Not for the SQL editor, where SQL is the point, and not for declarative pipelines, see genie-code-lakeflow-review."
+description: "House style for Databricks notebooks and job tasks: DataFrame API only, never Spark SQL, with a fixed cell layout (imports, constants and configs in the first four cells). Use whenever Genie Code writes or edits a notebook or job task. Not for the SQL editor, where SQL is the point, and not for declarative pipelines"
 ---
 
 # Notebook house style
