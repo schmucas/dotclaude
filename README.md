@@ -113,8 +113,8 @@ is a separate, deliberate step, not automatic.
 | | Does |
 |---|---|
 | [`genie-code-conventions`](genie-code/skills/genie-code-conventions/SKILL.md) | UC only, no DBFS |
-| [`genie-code-lakeflow-review`](genie-code/skills/genie-code-lakeflow-review/SKILL.md) | dp API spelling, Python pipelines only, transformations stay declarative |
 | [`genie-code-lakeflow-jobs`](genie-code/skills/genie-code-lakeflow-jobs/SKILL.md) | Notebook house style: DataFrame API only, fixed cell layout |
+| [`genie-code-populate-pipeline-files`](genie-code/skills/genie-code-populate-pipeline-files/SKILL.md) | Batch pattern for bulk-creating and filling in empty pipeline files |
 
 ### `home/`, the one exception
 
@@ -143,8 +143,8 @@ dotclaude/
 ├── home/
 │   └── CLAUDE.md                 global instructions, the only symlink
 ├── genie-code/                   published to Databricks, not a plugin
-│   └── skills/                   genie-code-conventions, genie-code-lakeflow-review,
-│                                 genie-code-lakeflow-jobs
+│   └── skills/                   genie-code-conventions, genie-code-lakeflow-jobs,
+│                                 genie-code-populate-pipeline-files
 ├── evals/                        does the config behave as intended
 │   ├── triggers.yaml             prompt -> expected skill or agent
 │   ├── fixtures/                 files with planted violations

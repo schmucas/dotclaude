@@ -24,5 +24,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: databricks/setup-cli@main
+      - name: Remove stale skills from the workspace
+        run: databricks workspace delete /Workspace/Shared/genie-code-skills --recursive || true
       - name: Publish genie-code skills catalog to the workspace
         run: databricks workspace import-dir genie-code/skills /Workspace/Shared/genie-code-skills --overwrite
