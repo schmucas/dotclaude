@@ -61,9 +61,9 @@ This skill enforces three non-negotiable standards:
 * One deduplication/aggregation DataFrame
 * One final selection DataFrame
 * One write operation
-* One SQL operation (CREATE SCHEMA, ALTER TABLE, etc.)
+* SQL operations for one table (CREATE TABLE + multiple ALTER statements are fine in one cell; but don't mix CREATE/ALTER with DataFrame writes for the same table)
 
-**Never combine multiple actions in one cell** - this makes debugging impossible and violates the standard.
+**Never combine different types of actions in one cell** - e.g., don't mix CREATE TABLE with DataFrame writes, or imports with data processing. However, multiple SQL statements for the same table (CREATE + multiple ALTERs) can share a cell.
 
 ### Why This Matters
 
@@ -131,6 +131,11 @@ def clean_column(df, col_name):
 # Example: Create schema
 spark.sql(f"CREATE SCHEMA IF NOT EXISTS {BRONZE_SCHEMA}")
 
+# Example: Create table with properties (multiple SQL statements for same table OK)
+spark.sql(f"CREATE TABLE {TARGET_TABLE} ...")
+spark.sql(f"ALTER TABLE {TARGET_TABLE} SET TBLPROPERTIES ('quality' = 'bronze')")
+spark.sql(f"ALTER TABLE {TARGET_TABLE} SET TBLPROPERTIES ('delta.enableChangeDataFeed' = 'true')")
+
 # Example: Read from table
 df_raw = spark.table(SOURCE_TABLE)
 
@@ -144,16 +149,13 @@ df_transformed = (
     .withColumn("another_col", F.upper(F.col("name")))
 )
 
-# Example: Write to table
+# Example: Write to table (separate from CREATE/ALTER)
 (
     df_transformed.write
     .format("delta")
     .mode("overwrite")
     .saveAsTable(TARGET_TABLE)
 )
-
-# Example: Alter table
-spark.sql(f"ALTER TABLE {TARGET_TABLE} SET TBLPROPERTIES ('quality' = 'bronze')")
 ```
 
 **✅ Result:** Each action gets its own cell. Easy to debug. Constants in Cell 2. No hardcoded strings.
@@ -446,7 +448,7 @@ import pandas as pd
 - [ ] **Cell 1**: Imports only
 - [ ] **Cell 2**: Configuration and constants (catalog, schema, tables, widgets, paths)
 - [ ] **Cell 3+**: One action per cell - NEVER combine multiple actions in one cell
-- [ ] **Each action gets its own cell**: Python functions, CREATE SCHEMA, CREATE TABLE, read, transform, window spec, dedupe, select, write, ALTER TABLE
+- [ ] **Each action gets its own cell**: Python functions, CREATE SCHEMA, SQL table operations (CREATE TABLE + ALTERs for same table OK), read, transform, window spec, dedupe, select, write
 - [ ] **The exact sequence depends on your task** - there's no mandated order, just one action per cell
 - [ ] **No hardcoded strings** - use constants from Cell 2 instead of literals like "workspace.bronze.table"
 
