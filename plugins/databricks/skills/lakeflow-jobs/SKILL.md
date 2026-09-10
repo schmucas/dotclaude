@@ -63,3 +63,6 @@ print(source_table, target_table, checkpoint_path)
 
 Catalog and schema come from a config cell, never hardcoded mid-notebook.
 Checkpoints live under a UC Volume, never DBFS.
+
+Any `saveAsTable`, `writeTo`, or `toTable` call that creates a Delta table adds
+liquid clustering, see `databricks-conventions` for the rule and syntax.

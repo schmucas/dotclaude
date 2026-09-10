@@ -1,6 +1,6 @@
 ---
 name: lakeflow-review
-description: "Review a Lakeflow Declarative Pipeline transformation or pipeline resource against Luca's project rules: current dp API spelling, Python pipelines only and never SQL, transformations that stay declarative rather than importable. Use when asked to review a transformation file, a pipeline definition, or whether a pipeline change follows project standards. For how declarative pipelines work in general, defer to the vendor databricks-pipelines skill. Pair with databricks-conventions."
+description: "Review a Lakeflow Declarative Pipeline transformation or pipeline resource against Luca's project rules: current dp API spelling, Python pipelines only and never SQL, transformations that stay declarative rather than importable, liquid clustering on every table. Use when asked to review a transformation file, a pipeline definition, or whether a pipeline change follows project standards. For how declarative pipelines work in general, defer to the vendor databricks-pipelines skill. Pair with databricks-conventions."
 ---
 
 # Pipeline review
@@ -36,6 +36,13 @@ Transformation files run inside the pipeline. They are not imported. Flag:
 Reusable logic belongs in the utils wheel repo, not here. Do not suggest
 refactoring a transformation into a reusable module inside the pipeline, that is
 the wrong direction.
+
+### 4. Liquid clustering (WARN)
+
+Every table-producing decorator (`@dp.table`, `@dp.materialized_view`,
+`create_streaming_table`) should set `cluster_by_auto=True` or `cluster_by=[...]`.
+Flag one that sets neither, unless the user asked for no clustering. See
+`databricks-conventions` for the full rule and syntax across surfaces.
 
 ## Output format
 
