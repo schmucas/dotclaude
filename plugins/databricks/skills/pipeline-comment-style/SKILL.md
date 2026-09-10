@@ -12,14 +12,14 @@ detail, write it as short bullet points, not a prose paragraph.
 
 - Any notebook or pipeline source file in this project.
 - Only for comments that explain a caveat, gotcha, decision, or other
-  non-obvious detail — never for comments that restate what the code does.
+  non-obvious detail, never for comments that restate what the code does.
 
 ## How to write it
 
 - One bullet per fact or decision, one short line each.
 - Lead with the fact, skip the backstory.
 - Drop filler ("note that", "it's important to understand that").
-- A single one-line caveat stays a single line — bullets are for 2+ points,
+- A single one-line caveat stays a single line: bullets are for 2+ points,
   not padding for one.
 
 ## Example
@@ -43,5 +43,5 @@ Multiple points, still bullets:
 
 ```python
 # - BLS pads header/values with spaces; trim before use as key or number.
-# - Q05 is the annual average, not a fifth quarter — exclude from sums.
+# - Q05 is the annual average, not a fifth quarter (exclude from sums).
 ```

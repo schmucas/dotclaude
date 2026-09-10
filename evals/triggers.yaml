@@ -16,6 +16,10 @@ cases:
     expect: lakeflow-jobs
     why: Authoring a notebook task, not reviewing a pipeline.
 
+  - prompt: "I need to explain in a comment why this join uses a broadcast hint, what's the right format?"
+    expect: pipeline-comment-style
+    why: Comment-style question about a caveat, not the pipeline logic itself.
+
   - prompt: "Is it ok to read from /mnt/raw in this job?"
     expect: databricks-conventions
     why: Cross-cutting UC vs DBFS question, belongs to the shared baseline.
