@@ -24,6 +24,10 @@ cases:
     expect: house-style-docs
     why: Authoring docs.
 
+  - prompt: "Local tests pass and ruff is clean. Should I validate the bundle and deploy this to dev now?"
+    expect: databricks-remote-checkpoint
+    why: Local checks are done, next step touches the real workspace.
+
   # ---------------------------------------------------------------- agents
   - prompt: "Why is this job so expensive to run?"
     expect: cost-perf-auditor

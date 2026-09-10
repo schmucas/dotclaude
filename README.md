@@ -93,6 +93,7 @@ installed alongside.
 | [`databricks-conventions`](plugins/databricks/skills/databricks-conventions/SKILL.md) | Skill | UC only, three fixed targets, secrets on Free Edition |
 | [`lakeflow-review`](plugins/databricks/skills/lakeflow-review/SKILL.md) | Skill | dp API spelling, Python pipelines only, transformations stay declarative |
 | [`lakeflow-jobs`](plugins/databricks/skills/lakeflow-jobs/SKILL.md) | Skill | Notebook house style: DataFrame API only, fixed cell layout |
+| [`databricks-remote-checkpoint`](plugins/databricks/skills/databricks-remote-checkpoint/SKILL.md) | Skill | Stops and asks before moving from local checks to validating, deploying and running on the real workspace |
 | [`guard-conventions.py`](plugins/databricks/hooks/guard-conventions.py) | Hook, PreToolUse | **Blocks** a write containing a DBFS path, `/mnt/`, `dbutils.fs` or `@dlt.table` |
 
 That last row is the point of shipping conventions as a plugin. A convention written in a
@@ -112,9 +113,11 @@ is a separate, deliberate step, not automatic.
 
 | | Does |
 |---|---|
-| [`genie-code-conventions`](genie-code/skills/genie-code-conventions/SKILL.md) | UC only, no DBFS |
-| [`genie-code-lakeflow-jobs`](genie-code/skills/genie-code-lakeflow-jobs/SKILL.md) | Notebook house style: DataFrame API only, fixed cell layout |
-| [`genie-code-populate-pipeline-files`](genie-code/skills/genie-code-populate-pipeline-files/SKILL.md) | Batch pattern for bulk-creating and filling in empty pipeline files |
+| [`genie-code-conventions`](genie-code/skills/conventions/SKILL.md) | UC only, no DBFS |
+| [`genie-code-lakeflow-jobs`](genie-code/skills/lakeflow-jobs/SKILL.md) | Notebook house style: DataFrame API only, fixed cell layout |
+| [`genie-code-populate-pipeline-files`](genie-code/skills/populate-pipeline-files/SKILL.md) | Batch pattern for bulk-creating and filling in empty pipeline files |
+| [`analyze-table-quality`](genie-code/skills/analyze-table-quality/SKILL.md) | Null rates and hot-key skewness for a table or in-memory DataFrame |
+| [`delta-primary-key-constraints`](genie-code/skills/delta-primary-key-constraints/SKILL.md) | Required pattern for adding PRIMARY KEY constraints to Delta tables |
 
 ### `home/`, the one exception
 
@@ -139,12 +142,13 @@ dotclaude/
 │       ├── agents/               cost-perf-auditor, schema-impact
 │       ├── hooks/                hooks.json + guard-conventions.py
 │       └── skills/               databricks-conventions, lakeflow-review,
-│                                 lakeflow-jobs
+│                                 lakeflow-jobs, databricks-remote-checkpoint
 ├── home/
 │   └── CLAUDE.md                 global instructions, the only symlink
 ├── genie-code/                   published to Databricks, not a plugin
 │   └── skills/                   genie-code-conventions, genie-code-lakeflow-jobs,
-│                                 genie-code-populate-pipeline-files
+│                                 genie-code-populate-pipeline-files, analyze-table-quality,
+│                                 delta-primary-key-constraints
 ├── evals/                        does the config behave as intended
 │   ├── triggers.yaml             prompt -> expected skill or agent
 │   ├── fixtures/                 files with planted violations
