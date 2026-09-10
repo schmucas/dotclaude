@@ -93,7 +93,7 @@ installed alongside.
 | [`databricks-conventions`](plugins/databricks/skills/databricks-conventions/SKILL.md) | Skill | UC only, three fixed targets, secrets on Free Edition |
 | [`lakeflow-review`](plugins/databricks/skills/lakeflow-review/SKILL.md) | Skill | dp API spelling, Python pipelines only, transformations stay declarative |
 | [`lakeflow-jobs`](plugins/databricks/skills/lakeflow-jobs/SKILL.md) | Skill | Notebook house style: DataFrame API only, fixed cell layout |
-| [`databricks-remote-checkpoint`](plugins/databricks/skills/databricks-remote-checkpoint/SKILL.md) | Skill | Stops and asks before moving from local checks to bundle validate, deploy, run, or SQL MCP |
+| [`databricks-remote-checkpoint`](plugins/databricks/skills/databricks-remote-checkpoint/SKILL.md) | Skill | Stops and asks before moving from local checks to bundle validate, deploy, run, or checking results on the workspace |
 | [`guard-conventions.py`](plugins/databricks/hooks/guard-conventions.py) | Hook, PreToolUse | **Blocks** a write containing a DBFS path, `/mnt/`, `dbutils.fs` or `@dlt.table` |
 
 That last row is the point of shipping conventions as a plugin. A convention written in a
