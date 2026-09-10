@@ -113,9 +113,11 @@ is a separate, deliberate step, not automatic.
 
 | | Does |
 |---|---|
-| [`genie-code-conventions`](genie-code/skills/genie-code-conventions/SKILL.md) | UC only, no DBFS |
-| [`genie-code-lakeflow-jobs`](genie-code/skills/genie-code-lakeflow-jobs/SKILL.md) | Notebook house style: DataFrame API only, fixed cell layout |
-| [`genie-code-populate-pipeline-files`](genie-code/skills/genie-code-populate-pipeline-files/SKILL.md) | Batch pattern for bulk-creating and filling in empty pipeline files |
+| [`genie-code-conventions`](genie-code/skills/conventions/SKILL.md) | UC only, no DBFS |
+| [`genie-code-lakeflow-jobs`](genie-code/skills/lakeflow-jobs/SKILL.md) | Notebook house style: DataFrame API only, fixed cell layout |
+| [`genie-code-populate-pipeline-files`](genie-code/skills/populate-pipeline-files/SKILL.md) | Batch pattern for bulk-creating and filling in empty pipeline files |
+| [`analyze-table-quality`](genie-code/skills/analyze-table-quality/SKILL.md) | Null rates and hot-key skewness for a table or in-memory DataFrame |
+| [`delta-primary-key-constraints`](genie-code/skills/delta-primary-key-constraints/SKILL.md) | Required pattern for adding PRIMARY KEY constraints to Delta tables |
 
 ### `home/`, the one exception
 
@@ -145,7 +147,8 @@ dotclaude/
 │   └── CLAUDE.md                 global instructions, the only symlink
 ├── genie-code/                   published to Databricks, not a plugin
 │   └── skills/                   genie-code-conventions, genie-code-lakeflow-jobs,
-│                                 genie-code-populate-pipeline-files
+│                                 genie-code-populate-pipeline-files, analyze-table-quality,
+│                                 delta-primary-key-constraints
 ├── evals/                        does the config behave as intended
 │   ├── triggers.yaml             prompt -> expected skill or agent
 │   ├── fixtures/                 files with planted violations
